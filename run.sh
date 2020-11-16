@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES=1,0,2,3 python train.py --dataset="geoimage" --batch_size=32 --test_batch_size=4 --output_dir="./visualization/geoimage" --niter=200 --net_G="./checkpoint/geoimage/netG_model_epoch_170.pth" --net_D="./checkpoint/geoimage/netD_model_epoch_170.pth"

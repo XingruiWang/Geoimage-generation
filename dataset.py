@@ -1,7 +1,9 @@
+import os
 from os import listdir
 from os.path import join
 import random
 
+import cv2 as cv
 from PIL import Image
 import torch
 import torch.utils.data as data
@@ -10,22 +12,25 @@ import torchvision.transforms as transforms
 from utils import is_image_file, load_img
 
 
-class DatasetFromFolder(data.Dataset):
-    def __init__(self, image_dir, direction):
-        super(DatasetFromFolder, self).__init__()
+# data_dir = /home/hanfang_yang/GIS/data/geoimage/train/images
+class GeoImage(data.Dataset):
+    def __init__(self, data_dir, direction, filename):
+        super(GeoImage, self).__init__()
         self.direction = direction
-        self.a_path = join(image_dir, "a")
-        self.b_path = join(image_dir, "b")
-        self.image_filenames = [x for x in listdir(self.a_path) if is_image_file(x)]
-
+        # self.a_path = join(image_dir, "a")
+        # self.b_path = join(image_dir, "b")
+        # self.image_filenames = [x for x in listdir(self.a_path) if is_image_file(x)]
+        self.root = data_dir
+        self.image_filenames = open(filename).readlines()
         transform_list = [transforms.ToTensor(),
                           transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
 
         self.transform = transforms.Compose(transform_list)
 
     def __getitem__(self, index):
-        a = Image.open(join(self.a_path, self.image_filenames[index])).convert('RGB')
-        b = Image.open(join(self.b_path, self.image_filenames[index])).convert('RGB')
+        a_name, b_name = self.image_filenames[index].split('\n')[0].split("\t")[0], self.image_filenames[index].split('\n')[0].split("\t")[1]
+        a = Image.open(join(self.root, a_name)).convert('RGB')
+        b = Image.open(join(self.root, b_name)).convert('RGB')
         a = a.resize((286, 286), Image.BICUBIC)
         b = b.resize((286, 286), Image.BICUBIC)
         a = transforms.ToTensor()(a)
@@ -46,9 +51,9 @@ class DatasetFromFolder(data.Dataset):
             b = b.index_select(2, idx)
 
         if self.direction == "a2b":
-            return a, b
+            return a, b, b_name
         else:
-            return b, a
+            return b, a, a_name
 
     def __len__(self):
         return len(self.image_filenames)
