@@ -43,7 +43,7 @@ def update_learning_rate(scheduler, optimizer):
     print('learning rate = %.7f' % lr)
 
 
-def init_weights(net, init_type='normal', gain=0.02):
+def init_weights(net, init_type='kaiming', gain=0.02):
     def init_func(m):
         classname = m.__class__.__name__
         if hasattr(m, 'weight') and (classname.find('Conv') != -1 or classname.find('Linear') != -1):
