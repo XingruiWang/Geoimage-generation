@@ -5,7 +5,7 @@ dir = "/home/hanfang_yang/GIS/data/geoimage/hold/images"
 
 l = os.listdir(dir)
 l.sort()
-f = open("dataset/list/geoimage/val.lst", "w")
+f = open("dataset/list/geoimage/val-mask.lst", "w")
 fore_name = ""
 for name in l:
     image_type = name.split("_")[2]
@@ -19,7 +19,7 @@ dir = "/home/hanfang_yang/GIS/data/geoimage/train/images"
 
 l = os.listdir(dir)
 l.sort()
-f = open("dataset/list/geoimage/train.lst", "w")
+f = open("dataset/list/geoimage/train-mask.lst", "w")
 fore_name = ""
 for name in l:
     image_type = name.split("_")[2]

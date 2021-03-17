@@ -31,6 +31,7 @@ class GeoImage(data.Dataset):
         a_name, b_name = self.image_filenames[index].split('\n')[0].split("\t")[0], self.image_filenames[index].split('\n')[0].split("\t")[1]
         a = Image.open(join(self.root, a_name)).convert('RGB')
         b = Image.open(join(self.root, b_name)).convert('RGB')
+        mask = Image.open(join(self.root, b_name)).convert('RGB')
         a = a.resize((286, 286), Image.BICUBIC)
         b = b.resize((286, 286), Image.BICUBIC)
         a = transforms.ToTensor()(a)
