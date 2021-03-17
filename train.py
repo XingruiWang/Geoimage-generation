@@ -86,6 +86,7 @@ if opt.net_D:
 
 criterionGAN = GANLoss().cuda()
 criterionL1 = nn.L1Loss().cuda()
+criterionB = nn.L1Loss().cuda()
 criterionMSE = nn.MSELoss().cuda()
 
 # setup optimizer
@@ -98,7 +99,7 @@ for epoch in range(opt.epoch_count, opt.niter + opt.niter_decay + 1):
     # train
     for iteration, batch in enumerate(training_data_loader, 1):
         # forward
-        real_a, real_b = batch[0].cuda(), batch[1].cuda()
+        real_a, real_b, mask = batch[0].cuda(), batch[1].cuda(), batch[2].cuda()
         fake_b = net_g(real_a)
         grid = torchvision.utils.make_grid(fake_b)
         writer.add_image('Pre-damage/Inspect fake data', grid, global_step=0)
@@ -143,8 +144,9 @@ for epoch in range(opt.epoch_count, opt.niter + opt.niter_decay + 1):
 
         # Second, G(A) = B
         loss_g_l1 = criterionL1(fake_b, real_b) * opt.lamb
+        loss_building_l1 = criterionB(fake_b * mask, real_b * mask) * opt.lamb
         
-        loss_g = loss_g_gan + loss_g_l1
+        loss_g = loss_g_gan + loss_g_l1 + loss_building_l1
         
         loss_g.backward()
 

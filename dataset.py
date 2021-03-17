@@ -31,16 +31,22 @@ class GeoImage(data.Dataset):
         a_name, b_name = self.image_filenames[index].split('\n')[0].split("\t")[0], self.image_filenames[index].split('\n')[0].split("\t")[1]
         a = Image.open(join(self.root, a_name)).convert('RGB')
         b = Image.open(join(self.root, b_name)).convert('RGB')
-        mask = Image.open(join(self.root, b_name)).convert('RGB')
+
+        pre_name_pure = b_name.split('/')[-1]
+        mask_name = '/'.join(['geoimage', 'train', 'masks', pre_name_pure])
+        mask = Image.open(join(self.root, mask_name)).convert('RGB')
         a = a.resize((286, 286), Image.BICUBIC)
         b = b.resize((286, 286), Image.BICUBIC)
+        mask = mask.resize((286, 286), Image.BICUBIC)
         a = transforms.ToTensor()(a)
         b = transforms.ToTensor()(b)
+        mask = transforms.ToTensor()(mask)
         w_offset = random.randint(0, max(0, 286 - 256 - 1))
         h_offset = random.randint(0, max(0, 286 - 256 - 1))
     
         a = a[:, h_offset:h_offset + 256, w_offset:w_offset + 256]
         b = b[:, h_offset:h_offset + 256, w_offset:w_offset + 256]
+        mask = mask[:, h_offset:h_offset + 256, w_offset:w_offset + 256]
     
         a = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))(a)
         b = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))(b)
@@ -52,9 +58,9 @@ class GeoImage(data.Dataset):
             b = b.index_select(2, idx)
 
         if self.direction == "a2b":
-            return a, b, b_name
+            return a, b, mask, b_name
         else:
-            return b, a, a_name
+            return b, a, mask, a_name
 
     def __len__(self):
         return len(self.image_filenames)
